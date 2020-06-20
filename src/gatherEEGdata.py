@@ -88,7 +88,7 @@ class EEGHandler(DataHandler):
                 dtp10, ttp10, atp10, betp10 = calculate_power_bands(tp10)
                 # print("Done computing power bands for 1/3 second")
                 for i in range(0, np.shape(atp9)[0]):
-                    eeg_msg = Message.theme()
+                    eeg_msg = Message.EEGPayload()
                     eeg_msg.meanAlphaTpNine = atp9[i]
                     eeg_msg.meanBetaTpNine = betp9[i]
                     eeg_msg.meanThetaTpNine = ttp9[i]
