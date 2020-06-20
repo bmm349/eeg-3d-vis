@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package theme;
+
+message theme {
+	string colorOne = 1;
+	string colorTwo = 2;
+	string colorThree = 3;
+	string colorFour = 4;
+	string colorFive = 5;
+	string colorSix = 6;
+	string colorSeven = 7;
+}

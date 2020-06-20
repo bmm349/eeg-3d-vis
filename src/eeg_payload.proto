@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package theme;
+
+message theme {
+	float meanAlphaTpNine = 1;
+	float meanBetaTpNine = 2;
+	float meanThetaTpNine = 3;
+	float meanDeltaTpNine = 4;
+
+	float meanAlphaTpTen = 5;
+	float meanBetaTpTen = 6;
+	float meanThetaTpTen = 7;
+	float meanDeltaTpTen = 8;
+
+	float meanAlphaAfSeven = 10;
+	float meanBetaAfSeven = 11;
+	float meanThetaAfSeven = 12;
+	float meanDeltaAfSeven = 13;
+
+	float meanAlphaAfEight = 14;
+	float meanBetaAfEight = 15;
+	float meanThetaAfEight = 16;
+	float meanDeltaAfEight = 17;
+	
+}
