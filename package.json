@@ -1,19 +1,21 @@
 {
-  "name": "eeg-3d-vis",
+  "name": "jsm",
   "version": "1.0.0",
-  "description": "3d visualization for eeg data",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c \"rollup_config.js\"",
+    "start": "serve"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bmm349/eeg-3d-vis.git"
+  "author": "Mugen87",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.115.0"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/bmm349/eeg-3d-vis/issues"
-  },
-  "homepage": "https://github.com/bmm349/eeg-3d-vis#readme"
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "rollup": "^2.3.2",
+    "rollup-plugin-terser": "^5.3.0",
+    "serve": "^11.3.2"
+  }
 }
