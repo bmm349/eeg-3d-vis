@@ -1,0 +1,19 @@
+{
+  "name": "eeg-3d-vis",
+  "version": "1.0.0",
+  "description": "3d visualization for eeg data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bmm349/eeg-3d-vis.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bmm349/eeg-3d-vis/issues"
+  },
+  "homepage": "https://github.com/bmm349/eeg-3d-vis#readme"
+}
