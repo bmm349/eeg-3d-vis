@@ -1,11 +1,4 @@
-import {
-	BoxBufferGeometry,
-	Mesh,
-	MeshBasicMaterial,
-	PerspectiveCamera,
-	Scene,
-	WebGLRenderer
-} from 'three';
+import * as Three from 'three';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
@@ -15,18 +8,18 @@ class App {
 
 	init() {
 
-		camera = new PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+		camera = new Three.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
 		camera.position.z = 400;
 
-		scene = new Scene();
+		scene = new Three.Scene();
 
-		const geometry = new BoxBufferGeometry( 200, 200, 200 );
-		const material = new MeshBasicMaterial();
+		const geometry = new Three.SphereBufferGeometry(200, 30, 30);
+		const material = new Three.MeshBasicMaterial();
 
-		const mesh = new Mesh( geometry, material );
+		const mesh = new Three.Mesh( geometry, material );
 		scene.add( mesh );
 
-		renderer = new WebGLRenderer( { antialias: true } );
+		renderer = new Three.WebGLRenderer( { antialias: true } );
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		document.body.appendChild( renderer.domElement );
