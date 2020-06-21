@@ -28,6 +28,9 @@ class App {
 
 		const controls = new OrbitControls( camera, renderer.domElement );
 
+		//Start zmq subscriber
+
+
 		animate();
 
 	}
