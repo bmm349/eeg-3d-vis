@@ -1,12 +1,15 @@
-import * as Three from 'three';
+//import * as Three from 'three';
 
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+const Three = require('three');
+const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js');
+
+//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 let camera, scene, renderer;
 
-class App {
 
-	init() {
+function init() 
+{
 
 		camera = new Three.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
 		camera.position.z = 400;
@@ -28,14 +31,9 @@ class App {
 
 		const controls = new OrbitControls( camera, renderer.domElement );
 
-		//Start zmq subscriber
-
-
 		animate();
 
 	}
-
-}
 
 function onWindowResize() {
 
@@ -53,4 +51,9 @@ function animate() {
 
 }
 
-export { App }
+function print() {
+	alert("fuck me");
+}
+
+module.exports.init = init;
+module.exports.print = print;

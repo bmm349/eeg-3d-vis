@@ -1,14 +1,15 @@
-import resolve from '@rollup/plugin-node-resolve'; // locate and bundle dependencies in node_modules (mandatory)
-import { terser } from "rollup-plugin-terser"; // code minification (optional)
+const resolve = require('@rollup/plugin-node-resolve'); // locate and bundle dependencies in node_modules (mandatory)
+const { terser } = require("rollup-plugin-terser"); // code minification (optional)
+const commonjs = require('@rollup/plugin-commonjs');
 
-export default {
+module.exports = {
 	input: 'src/main.js',
 	output: [
 		{
 			format: 'umd',
-			name: 'MYAPP',
+			name: 'EEGVisualizer',
 			file: 'build/bundle.js'
 		}
 	],
-	plugins: [ resolve(), terser() ]
+	plugins: [ resolve(), commonjs() ]
 };
