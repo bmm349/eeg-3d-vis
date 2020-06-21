@@ -1,5 +1,5 @@
 {
-  "name": "jsm",
+  "name": "3d-eeg-visualizer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,8 +8,8 @@
     "start": "serve",
     "test": "npm run build && npm run start"
   },
-  "author": "Mugen87",
-  "license": "MIT",
+  "author": "smcfadden150",
+  "license": "",
   "dependencies": {
     "protobufjs": "^6.9.0",
     "three": "^0.115.0"
