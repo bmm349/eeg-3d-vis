@@ -12,7 +12,8 @@
   "license": "MIT",
   "dependencies": {
     "protobufjs": "^6.9.0",
-    "three": "^0.115.0"
+    "three": "^0.115.0",
+    "zeromq": "^6.0.0-beta.6"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^7.1.1",
