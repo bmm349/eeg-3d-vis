@@ -51715,30 +51715,29 @@ vec4 envMapTexelToLinear(vec4 color) {
 	let camera, scene, renderer;
 
 
-	function init() 
-	{
+	function init() {
 
-			camera = new three_module.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-			camera.position.z = 400;
+		camera = new three_module.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+		camera.position.z = 400;
 
-			scene = new three_module.Scene();
+		scene = new three_module.Scene();
 
-			const geometry = new three_module.SphereBufferGeometry(200, 30, 30);
-			const material = new three_module.MeshBasicMaterial();
+		const geometry = new three_module.BoxBufferGeometry(200, 30, 30);
+		const material = new three_module.MeshBasicMaterial();
 
-			const mesh = new three_module.Mesh( geometry, material );
-			scene.add( mesh );
+		const mesh = new three_module.Mesh( geometry, material );
+		scene.add( mesh );
 
-			renderer = new three_module.WebGLRenderer( { antialias: true } );
-			renderer.setPixelRatio( window.devicePixelRatio );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+		renderer = new three_module.WebGLRenderer( { antialias: true } );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.body.appendChild( renderer.domElement );
 
-			window.addEventListener( 'resize', onWindowResize, false );
+		window.addEventListener( 'resize', onWindowResize, false );
 
-			const controls = new OrbitControls$2( camera, renderer.domElement );
+		const controls = new OrbitControls$2( camera, renderer.domElement );
 
-			animate();
+		animate();
 
 		}
 

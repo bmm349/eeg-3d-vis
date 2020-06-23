@@ -8,30 +8,29 @@ const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js'
 let camera, scene, renderer;
 
 
-function init() 
-{
+function init() {
 
-		camera = new Three.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-		camera.position.z = 400;
+	camera = new Three.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+	camera.position.z = 400;
 
-		scene = new Three.Scene();
+	scene = new Three.Scene();
 
-		const geometry = new Three.SphereBufferGeometry(200, 30, 30);
-		const material = new Three.MeshBasicMaterial();
+	const geometry = new Three.BoxBufferGeometry(200, 30, 30);
+	const material = new Three.MeshBasicMaterial();
 
-		const mesh = new Three.Mesh( geometry, material );
-		scene.add( mesh );
+	const mesh = new Three.Mesh( geometry, material );
+	scene.add( mesh );
 
-		renderer = new Three.WebGLRenderer( { antialias: true } );
-		renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth, window.innerHeight );
-		document.body.appendChild( renderer.domElement );
+	renderer = new Three.WebGLRenderer( { antialias: true } );
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
 
-		window.addEventListener( 'resize', onWindowResize, false );
+	window.addEventListener( 'resize', onWindowResize, false );
 
-		const controls = new OrbitControls( camera, renderer.domElement );
+	const controls = new OrbitControls( camera, renderer.domElement );
 
-		animate();
+	animate();
 
 	}
 
