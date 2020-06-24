@@ -4,10 +4,14 @@ const Three = require('three');
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js');
 const { FBXLoader } = require('three/examples/jsm/loaders/FBXLoader.js');
 const { TrackballControls } = require('three/examples/jsm/controls/TrackballControls.js');
+const { LineMaterial } = require('three/examples/jsm/lines/LineMaterial.js');
+const { Wireframe }  = require('three/examples/jsm/lines/Wireframe.js');
+const { WireframeGeometry2 } = require('three/examples/jsm/lines/WireframeGeometry2.js');
+const { PointsMaterial } = require('three');
 
-let camera, scene, renderer, light, brainModel, controls, lineModel, brainUniforms;
+let camera, scene, renderer, light, brainModel, controls, brainHighPoly;
 
-let vertexShader, fragmentShader, uniforms;
+let vertexShader, fragmentShader, uniforms, fatLineMaterial, wireframe;
 
 /**
  * Designed to load all resources before initializing
@@ -20,13 +24,15 @@ const loadResources = async () => {
 	// load all required resources for the page
 	let loadingPromises = [];
 
-	Promise.all( [ loadBrainModel(), loadShaders() ] ).then( ( res ) => {
+	Promise.all( [ loadBrainModel(), loadShaders(), loadBrainModelHighPoly() ] ).then( ( res ) => {
 
 		console.log("all promises finished");
 		init();
 
 	});
 }
+
+// TODO Move Resource Loading To External File
 
 const loadShaders = async () => {
 
@@ -101,6 +107,43 @@ const loadBrainModel = async () => {
 	});
 }
 
+const loadBrainModelHighPoly = async () => {
+
+	return new Promise((resolve, reject) => {
+
+		var modelLoader = new FBXLoader();
+
+		modelLoader.load( '../src/models/brain-hp.fbx',
+
+		function ( object ) {
+
+			object.traverse( function ( child ) {
+
+				if ( child.isMesh && child.geometry.isBufferGeometry ) {
+
+					child.castShadow = true;
+					child.receiveShadow = true;
+					child.geometry.center();
+					brainHighPoly = child;
+				}
+
+			} );
+
+			
+			console.log("Loaded Highpoly Brain Geometry");
+			resolve();
+		},
+		undefined,
+		function ( err ) {
+
+			console.log( err );
+			reject();
+
+		});
+
+	});
+}
+
 const init = () => {
 
 	uniforms = {
@@ -146,27 +189,37 @@ const init = () => {
 
 	} );
 
-	//brainModel.geometry.position = new Three.Vector3(-300,-300,-300);
-	//brainModel.geometry.center();
+	fatLineMaterial = new LineMaterial( { 
 
+		color: 0x403c3b,
+		linewidth: 2,
+		dashed: false,
+		opacity: 0.3
 
-	var material = new Three.PointsMaterial( { color: 0x0000ff } );
-	var lm = new Three.Points( brainModel.geometry, material );
+	 } );
 
-	brainModel.geometry.center();
-	brainModel.scale.set( 50,50,50 );
-	brainModel.position.set( 0,0,0 );
+	 var geometry = new WireframeGeometry2( brainModel.geometry );
+	 wireframe = new Wireframe(geometry, fatLineMaterial );
+	 wireframe.computeLineDistances();
+	 wireframe.scale.set( 50, 50, 50 );
+	 wireframe.rotateX( -Math.PI / 2 );
+	 scene.add( wireframe );
 
-	lm.geometry.center();
-	lm.scale.set( 50,50,50 );
-	lm.rotateX( -Math.PI / 2 );
+	 var pointsMat = new Three.PointsMaterial({color:  0xFF7254 })
+	 var pointCloud = new Three.Points( brainHighPoly.geometry, pointsMat );
 
+	pointCloud.geometry.center();
+	pointCloud.scale.set( 50,50,50 );
+	pointCloud.position.set( 0,0,0 );
+	pointCloud.rotateX( - Math.PI / 2 );
+	scene.add( pointCloud );
 
-	//brainModel.material = shaderMaterial;
-	
-	// add loaded brain model
-	scene.add( brainModel );
-	scene.add( lm );
+	// lm.geometry.center();
+	// lm.scale.set( 50,50,50 );
+	// lm.rotateX( -Math.PI / 2 );
+
+	// scene.add( brainModel );
+	// scene.add( lm );
 
 	renderer = new Three.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -202,6 +255,8 @@ const animate = () => {
 	requestAnimationFrame( animate );
 
 	controls.update();
+
+	fatLineMaterial.resolution.set( window.innerWidth, window.innerHeight );
 
 	renderer.render( scene, camera );
 
