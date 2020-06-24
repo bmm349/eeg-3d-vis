@@ -7,11 +7,13 @@ const { TrackballControls } = require('three/examples/jsm/controls/TrackballCont
 const { LineMaterial } = require('three/examples/jsm/lines/LineMaterial.js');
 const { Wireframe }  = require('three/examples/jsm/lines/Wireframe.js');
 const { WireframeGeometry2 } = require('three/examples/jsm/lines/WireframeGeometry2.js');
-const { PointsMaterial } = require('three');
+const { VertexNormalsHelper } = require('three/examples/jsm/helpers/VertexNormalsHelper.js');
 
-let camera, scene, renderer, light, brainModel, controls, brainHighPoly;
+let camera, scene, renderer, brainModel, controls, brainHighPoly;
 
-let vertexShader, fragmentShader, uniforms, fatLineMaterial, wireframe;
+let fatLineMaterial, wireframe;
+
+let vnh;
 
 /**
  * Designed to load all resources before initializing
@@ -20,9 +22,6 @@ let vertexShader, fragmentShader, uniforms, fatLineMaterial, wireframe;
  * 	vertex and fragment shaders
  */
 const loadResources = async () => {
-
-	// load all required resources for the page
-	let loadingPromises = [];
 
 	Promise.all( [ loadBrainModel(), loadShaders(), loadBrainModelHighPoly() ] ).then( ( res ) => {
 
@@ -43,7 +42,7 @@ const loadShaders = async () => {
 		fileLoader.load('../src/shaders/standard.vert', 
 		function ( shader ) 
 		{
-			vertexShader = shader;
+			//vertexShader = shader;
 		},
 		undefined,
 		function ( err ) {
@@ -56,7 +55,7 @@ const loadShaders = async () => {
 		fileLoader.load('../src/shaders/standard.frag', 
 		function ( shader ) 
 		{
-			fragmentShader = shader;
+			//fragmentShader = shader;
 			console.log("Loaded Shaders Properly");
 			resolve();
 		},
@@ -146,48 +145,11 @@ const loadBrainModelHighPoly = async () => {
 
 const init = () => {
 
-	uniforms = {
-
-		amplitude: { value: 5.0 },
-		opacity: { value: 0.3 },
-		color: { value: new Three.Color( 0xffffff ) }
-
-	};
-
 	camera = new Three.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-	camera.position.set( 100, 200, 300 );
+	camera.position.set( -100, 50, -300 );
 
 	scene = new Three.Scene();
 	scene.background = new Three.Color( 0x050505 );
-
-	light = new Three.HemisphereLight( 0xffffff, 0x444444 );
-	light.position.set( 0, 200, 0 );
-	scene.add( light );
-
-	light = new Three.DirectionalLight( 0xffffff );
-	light.position.set( 0, 200, 100 );
-	light.castShadow = true;
-	light.shadow.camera.top = 180;
-	light.shadow.camera.bottom = - 100;
-	light.shadow.camera.left = - 120;
-	light.shadow.camera.right = 120;
-	scene.add( light );
-
-	var grid = new Three.GridHelper( 2000, 20, 0xffffff, 0xffffff );
-	grid.material.opacity = 0.2;
-	grid.material.transparent = true;
-	scene.add( grid );
-
-	var shaderMaterial = new Three.ShaderMaterial( {
-
-		uniforms: uniforms,
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader,
-		blending: Three.AdditiveBlending,
-		depthTest: false,
-		transparent: true
-
-	} );
 
 	fatLineMaterial = new LineMaterial( { 
 
@@ -214,12 +176,9 @@ const init = () => {
 	pointCloud.rotateX( - Math.PI / 2 );
 	scene.add( pointCloud );
 
-	// lm.geometry.center();
-	// lm.scale.set( 50,50,50 );
-	// lm.rotateX( -Math.PI / 2 );
-
-	// scene.add( brainModel );
-	// scene.add( lm );
+	// Uncomment for Vertex normal display
+	// vnh = new VertexNormalsHelper( pointCloud, 5 );
+	// scene.add( vnh );
 
 	renderer = new Three.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -255,6 +214,8 @@ const animate = () => {
 	requestAnimationFrame( animate );
 
 	controls.update();
+
+	if ( vnh ) vnh.update();
 
 	fatLineMaterial.resolution.set( window.innerWidth, window.innerHeight );
 
