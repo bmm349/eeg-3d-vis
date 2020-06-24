@@ -7,7 +7,7 @@ const { TrackballControls } = require('three/examples/jsm/controls/TrackballCont
 
 let camera, scene, renderer, light, brainModel, controls, lineModel, brainUniforms;
 
-let vertexShader, fragmentShader;
+let vertexShader, fragmentShader, uniforms;
 
 /**
  * Designed to load all resources before initializing
@@ -51,6 +51,7 @@ const loadShaders = async () => {
 		function ( shader ) 
 		{
 			fragmentShader = shader;
+			console.log("Loaded Shaders Properly");
 			resolve();
 		},
 		undefined,
@@ -69,26 +70,24 @@ const loadBrainModel = async () => {
 
 		var modelLoader = new FBXLoader();
 
-		modelLoader.load( '../src/models/brain-recenter.fbx',
+		modelLoader.load( '../src/models/brain-uv.fbx',
 
 		function ( object ) {
 
 			object.traverse( function ( child ) {
 
-				if ( child.isMesh ) {
+				if ( child.isMesh && child.geometry.isBufferGeometry ) {
 
 					child.castShadow = true;
 					child.receiveShadow = true;
-
+					child.geometry.center();
+					brainModel = child;
 				}
 
 			} );
 
-			brainModel = object.children[0];
-
-			brainModel.geometry.center();
-
-			console.log("loaded file properly");
+			
+			console.log("Loaded Brain Model");
 			resolve();
 		},
 		undefined,
@@ -103,6 +102,14 @@ const loadBrainModel = async () => {
 }
 
 const init = () => {
+
+	uniforms = {
+
+		amplitude: { value: 5.0 },
+		opacity: { value: 0.3 },
+		color: { value: new Three.Color( 0xffffff ) }
+
+	};
 
 	camera = new Three.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.set( 100, 200, 300 );
@@ -123,13 +130,43 @@ const init = () => {
 	light.shadow.camera.right = 120;
 	scene.add( light );
 
-	var grid = new Three.GridHelper( 2000, 20, 0x000000, 0x000000 );
+	var grid = new Three.GridHelper( 2000, 20, 0xffffff, 0xffffff );
 	grid.material.opacity = 0.2;
 	grid.material.transparent = true;
 	scene.add( grid );
 
+	var shaderMaterial = new Three.ShaderMaterial( {
+
+		uniforms: uniforms,
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader,
+		blending: Three.AdditiveBlending,
+		depthTest: false,
+		transparent: true
+
+	} );
+
+	//brainModel.geometry.position = new Three.Vector3(-300,-300,-300);
+	//brainModel.geometry.center();
+
+
+	var material = new Three.PointsMaterial( { color: 0x0000ff } );
+	var lm = new Three.Points( brainModel.geometry, material );
+
+	brainModel.geometry.center();
+	brainModel.scale.set( 50,50,50 );
+	brainModel.position.set( 0,0,0 );
+
+	lm.geometry.center();
+	lm.scale.set( 50,50,50 );
+	lm.rotateX( -Math.PI / 2 );
+
+
+	//brainModel.material = shaderMaterial;
+	
 	// add loaded brain model
 	scene.add( brainModel );
+	scene.add( lm );
 
 	renderer = new Three.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -165,12 +202,6 @@ const animate = () => {
 	requestAnimationFrame( animate );
 
 	controls.update();
-
-	if( brainModel ) {
-
-		brainModel.rotation.z -= 0.05;
-
-	}
 
 	renderer.render( scene, camera );
 
