@@ -61,7 +61,7 @@ class EEGHandler(DataHandler):
             data_batch = []
             # TODO: Make these configurable
             sample_rate = 256
-            n_seconds = 0.333
+            n_seconds = 10
             while getattr(t, 'do_run', True):
                 data, ts = self.inlet.pull_chunk(
                     timeout=1, max_samples=getattr(self.dtype, 'maxchunklen'))
@@ -81,6 +81,8 @@ class EEGHandler(DataHandler):
                 af7 = np.asarray(af7).astype(np.float)
                 af8 = np.asarray(af8).astype(np.float)
                 tp10 = np.asarray(tp10).astype(np.float)
+                pd_csv = pd.DataFrame(data=[af7,af8,tp9,tp10])
+                pd_csv.to_csv('eeg_recording_raw.csv', index=False)
                 # Calculate powerbands for all channels
                 dtp9, ttp9, atp9, betp9 = calculate_power_bands(tp9)
                 daf7, taf7, aaf7, beaf7 = calculate_power_bands(af7)
@@ -88,7 +90,7 @@ class EEGHandler(DataHandler):
                 dtp10, ttp10, atp10, betp10 = calculate_power_bands(tp10)
                 # print("Done computing power bands for 1/3 second")
                 for i in range(0, np.shape(atp9)[0]):
-                    eeg_msg = Message.EEGPayload()
+                    eeg_msg = Message.theme()
                     eeg_msg.meanAlphaTpNine = atp9[i]
                     eeg_msg.meanBetaTpNine = betp9[i]
                     eeg_msg.meanThetaTpNine = ttp9[i]
