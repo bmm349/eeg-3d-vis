@@ -7,6 +7,8 @@ const { TrackballControls } = require('three/examples/jsm/controls/TrackballCont
 
 let camera, scene, renderer, light, brainModel, controls, lineModel, brainUniforms;
 
+let vertexShader, fragmentShader;
+
 /**
  * Designed to load all resources before initializing
  * Loads:
@@ -15,59 +17,92 @@ let camera, scene, renderer, light, brainModel, controls, lineModel, brainUnifor
  */
 const loadResources = async () => {
 
-	// model
+	// load all required resources for the page
+	let loadingPromises = [];
 
-	// let modelProgress = loadBrainModel();
+	Promise.all( [ loadBrainModel(), loadShaders() ] ).then( ( res ) => {
 
-	let loadingPromises = [ loadModels() ];
+		console.log("all promises finished");
+		init();
 
-	await Promise.all( loadingPromises ).then( function () {
-
-		init(undefined, undefined);
 	});
 }
 
-const loadModels = async () => {
-    return await loadBrainModel();
+const loadShaders = async () => {
+
+	return new Promise((resolve, reject) => {
+
+		var fileLoader = new Three.FileLoader();
+	
+		fileLoader.load('../src/shaders/standard.vert', 
+		function ( shader ) 
+		{
+			vertexShader = shader;
+		},
+		undefined,
+		function ( err ) {
+
+			console.log( err );
+			reject();
+
+		});
+
+		fileLoader.load('../src/shaders/standard.frag', 
+		function ( shader ) 
+		{
+			fragmentShader = shader;
+			resolve();
+		},
+		undefined,
+		function ( err ) {
+
+			console.log( err );
+			reject();
+
+		});		
+	});
 }
 
 const loadBrainModel = async () => {
 
-	var modelLoader = new FBXLoader();
+	return new Promise((resolve, reject) => {
 
-	modelLoader.load( '../src/models/brain-recenter.fbx', 
-	
-	function ( object ) {
+		var modelLoader = new FBXLoader();
 
-		object.traverse( function ( child ) {
+		modelLoader.load( '../src/models/brain-recenter.fbx',
 
-			if ( child.isMesh ) {
+		function ( object ) {
 
-				child.castShadow = true;
-				child.receiveShadow = true;
+			object.traverse( function ( child ) {
 
-			}
+				if ( child.isMesh ) {
 
-		} );
+					child.castShadow = true;
+					child.receiveShadow = true;
 
-		brainModel = object.children[0];
+				}
 
-		console.log(brainModel);
+			} );
 
-		brainModel.geometry.center();
+			brainModel = object.children[0];
 
-		return Promise.resolve();
-	},
-	undefined, 
-	function ( err ) {
+			brainModel.geometry.center();
 
-		console.log( err );
-		return Promise.reject( err );
+			console.log("loaded file properly");
+			resolve();
+		},
+		undefined,
+		function ( err ) {
+
+			console.log( err );
+			reject();
+
+		});
 
 	});
 }
 
-const init = async ( fragmentShader, vertexShader ) => {
+const init = () => {
 
 	camera = new Three.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.set( 100, 200, 300 );
