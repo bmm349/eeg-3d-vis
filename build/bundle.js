@@ -57080,7 +57080,68 @@ vec4 envMapTexelToLinear(vec4 color) {
 
 	let camera, scene, renderer, light, brainModel, controls;
 
-	function init() {
+	/**
+	 * Designed to load all resources before initializing
+	 * Loads:
+	 * 	fbx files
+	 * 	vertex and fragment shaders
+	 */
+	const loadResources = async () => {
+
+		// model
+
+		// let modelProgress = loadBrainModel();
+
+		let loadingPromises = [ loadModels() ];
+
+		await Promise.all( loadingPromises ).then( function () {
+
+			alert("Loading complete");
+			init();
+		});
+	};
+
+	const loadModels = async () => {
+	    return await loadBrainModel();
+	};
+
+	const loadBrainModel = async () => {
+
+		var modelLoader = new FBXLoader$2();
+
+		modelLoader.load( '../src/models/brain-recenter.fbx', 
+		
+		function ( object ) {
+
+			object.traverse( function ( child ) {
+
+				if ( child.isMesh ) {
+
+					child.castShadow = true;
+					child.receiveShadow = true;
+
+				}
+
+			} );
+
+			brainModel = object.children[0];
+
+			console.log(brainModel);
+
+			brainModel.geometry.center();
+
+			return Promise.resolve();
+		},
+		undefined, 
+		function ( err ) {
+
+			console.log( err );
+			return Promise.reject( err );
+
+		});
+	};
+
+	const init = async ( fragmentShader, vertexShader ) => {
 
 		camera = new three_module.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 		camera.position.set( 100, 200, 300 );
@@ -57106,38 +57167,8 @@ vec4 envMapTexelToLinear(vec4 color) {
 		grid.material.transparent = true;
 		scene.add( grid );
 
-		// model
-		var loader = new FBXLoader$2();
-		loader.load( '../src/models/brain-recenter.fbx', 
-			function ( object ) {
-
-				object.traverse( function ( child ) {
-
-					if ( child.isMesh ) {
-
-						child.castShadow = true;
-						child.receiveShadow = true;
-
-					}
-
-				} );
-
-				// get cube001
-				brainModel = object.children[0];
-
-				console.log(brainModel);
-
-				brainModel.geometry.center();
-
-				scene.add( brainModel );
-			},
-			undefined, function (e) {
-				
-				// log any error if the fucking fbx doesnt load for no reason
-				console.log(e);
-
-			});
-
+		// add loaded brain model
+		scene.add( brainModel );
 
 		renderer = new three_module.WebGLRenderer( { antialias: true } );
 		renderer.setPixelRatio( window.devicePixelRatio );
@@ -57155,9 +57186,9 @@ vec4 envMapTexelToLinear(vec4 color) {
 
 		animate();
 
-	}
+	};
 
-	function onWindowResize() {
+	const onWindowResize = () => {
 
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
@@ -57166,9 +57197,9 @@ vec4 envMapTexelToLinear(vec4 color) {
 
 		renderer.setSize( window.innerWidth, window.innerHeight );
 
-	}
+	};
 
-	function animate() {
+	const animate = () => {
 
 		requestAnimationFrame( animate );
 
@@ -57182,24 +57213,27 @@ vec4 envMapTexelToLinear(vec4 color) {
 
 		renderer.render( scene, camera );
 
-	}
+	};
 
-	function print() {
+	const print = () => {
 
 		alert("fuck me");
 
-	}
+	};
 
 	var init_1 = init;
 	var print_1 = print;
+	var loadResources_1 = loadResources;
 
 	var main = {
 		init: init_1,
-		print: print_1
+		print: print_1,
+		loadResources: loadResources_1
 	};
 
 	exports.default = main;
 	exports.init = init_1;
+	exports.loadResources = loadResources_1;
 	exports.print = print_1;
 
 	Object.defineProperty(exports, '__esModule', { value: true });

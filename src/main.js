@@ -5,9 +5,69 @@ const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js'
 const { FBXLoader } = require('three/examples/jsm/loaders/FBXLoader.js');
 const { TrackballControls } = require('three/examples/jsm/controls/TrackballControls.js');
 
-let camera, scene, renderer, light, brainModel, controls;
+let camera, scene, renderer, light, brainModel, controls, lineModel, brainUniforms;
 
-function init() {
+/**
+ * Designed to load all resources before initializing
+ * Loads:
+ * 	fbx files
+ * 	vertex and fragment shaders
+ */
+const loadResources = async () => {
+
+	// model
+
+	// let modelProgress = loadBrainModel();
+
+	let loadingPromises = [ loadModels() ];
+
+	await Promise.all( loadingPromises ).then( function () {
+
+		init(undefined, undefined);
+	});
+}
+
+const loadModels = async () => {
+    return await loadBrainModel();
+}
+
+const loadBrainModel = async () => {
+
+	var modelLoader = new FBXLoader();
+
+	modelLoader.load( '../src/models/brain-recenter.fbx', 
+	
+	function ( object ) {
+
+		object.traverse( function ( child ) {
+
+			if ( child.isMesh ) {
+
+				child.castShadow = true;
+				child.receiveShadow = true;
+
+			}
+
+		} );
+
+		brainModel = object.children[0];
+
+		console.log(brainModel);
+
+		brainModel.geometry.center();
+
+		return Promise.resolve();
+	},
+	undefined, 
+	function ( err ) {
+
+		console.log( err );
+		return Promise.reject( err );
+
+	});
+}
+
+const init = async ( fragmentShader, vertexShader ) => {
 
 	camera = new Three.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.set( 100, 200, 300 );
@@ -33,38 +93,8 @@ function init() {
 	grid.material.transparent = true;
 	scene.add( grid );
 
-	// model
-	var loader = new FBXLoader();
-	loader.load( '../src/models/brain-recenter.fbx', 
-		function ( object ) {
-
-			object.traverse( function ( child ) {
-
-				if ( child.isMesh ) {
-
-					child.castShadow = true;
-					child.receiveShadow = true;
-
-				}
-
-			} );
-
-			// get cube001
-			brainModel = object.children[0];
-
-			console.log(brainModel);
-
-			brainModel.geometry.center();
-
-			scene.add( brainModel );
-		},
-		undefined, function (e) {
-			
-			// log any error if the fucking fbx doesnt load for no reason
-			console.log(e);
-
-		});
-
+	// add loaded brain model
+	scene.add( brainModel );
 
 	renderer = new Three.WebGLRenderer( { antialias: true } );
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -84,7 +114,7 @@ function init() {
 
 }
 
-function onWindowResize() {
+const onWindowResize = () => {
 
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
@@ -95,7 +125,7 @@ function onWindowResize() {
 
 }
 
-function animate() {
+const animate = () => {
 
 	requestAnimationFrame( animate );
 
@@ -111,7 +141,7 @@ function animate() {
 
 }
 
-function print() {
+const print = () => {
 
 	alert("fuck me");
 
@@ -119,3 +149,4 @@ function print() {
 
 module.exports.init = init;
 module.exports.print = print;
+module.exports.loadResources = loadResources;
