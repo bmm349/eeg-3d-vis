@@ -1,13 +1,11 @@
-//import * as Three from 'three';
+'use strict';
 
 const Three = require('three');
 const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js');
 const { FBXLoader } = require('three/examples/jsm/loaders/FBXLoader.js');
+const { TrackballControls } = require('three/examples/jsm/controls/TrackballControls.js');
 
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-let camera, scene, renderer, light;
-
+let camera, scene, renderer, light, brainModel, controls;
 
 function init() {
 
@@ -15,8 +13,7 @@ function init() {
 	camera.position.set( 100, 200, 300 );
 
 	scene = new Three.Scene();
-	scene.background = new Three.Color( 0xa0a0a0 );
-	scene.fog = new Three.Fog( 0xa0a0a0, 200, 1000 );
+	scene.background = new Three.Color( 0x050505 );
 
 	light = new Three.HemisphereLight( 0xffffff, 0x444444 );
 	light.position.set( 0, 200, 0 );
@@ -30,12 +27,6 @@ function init() {
 	light.shadow.camera.left = - 120;
 	light.shadow.camera.right = 120;
 	scene.add( light );
-
-	// ground
-	var mesh = new Three.Mesh( new Three.PlaneBufferGeometry( 2000, 2000 ), new Three.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-	mesh.rotation.x = - Math.PI / 2;
-	mesh.receiveShadow = true;
-	scene.add( mesh );
 
 	var grid = new Three.GridHelper( 2000, 20, 0x000000, 0x000000 );
 	grid.material.opacity = 0.2;
@@ -57,8 +48,15 @@ function init() {
 				}
 
 			} );
-			
-			scene.add( object );
+
+			// get cube001
+			brainModel = object.children[0];
+
+			console.log(brainModel);
+
+			brainModel.geometry.center();
+
+			scene.add( brainModel );
 		},
 		undefined, function (e) {
 			
@@ -75,16 +73,23 @@ function init() {
 
 	window.addEventListener( 'resize', onWindowResize, false );
 
-	const controls = new OrbitControls( camera, renderer.domElement );
+	controls = new TrackballControls( camera, renderer.domElement );
+
+	controls.rotateSpeed = 1.0;
+	controls.zoomSpeed = 1.2;
+	controls.panSpeed = 0.8;
+	controls.keys = [ 65, 83, 68 ];
 
 	animate();
 
-	}
+}
 
 function onWindowResize() {
 
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
+
+	controls.handleResize();
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -93,12 +98,23 @@ function onWindowResize() {
 function animate() {
 
 	requestAnimationFrame( animate );
+
+	controls.update();
+
+	if( brainModel ) {
+
+		brainModel.rotation.z -= 0.05;
+
+	}
+
 	renderer.render( scene, camera );
 
 }
 
 function print() {
+
 	alert("fuck me");
+
 }
 
 module.exports.init = init;
