@@ -19,6 +19,8 @@ let mouseX = 0, mouseY = 0;
 
 let particles;
 
+let count = 0;
+
 let particleCount = 0;
 
 let windowHalfX = window.innerWidth / 2;
@@ -154,14 +156,9 @@ const loadBrainModelHighPoly = async () => {
 	});
 }
 
-const buildBrainWireFrame = async () => {
+const buildBrainWireFrame = () => {
 
-	var geometry = new WireframeGeometry2( brainModel.geometry );
-	wireframe = new Wireframe(geometry, fatLineMaterial );
-	wireframe.computeLineDistances();
-	wireframe.scale.set( 50, 50, 50 );
-	wireframe.rotateX( -Math.PI / 2 );
-	scene.add( wireframe );
+	
 
 }
 
@@ -173,47 +170,24 @@ const init = () => {
 	scene = new Three.Scene();
 	scene.background = new Three.Color( 0x050505 );
 
-	fatLineMaterial = new LineMaterial( { 
-
-		color: 0xffffff,
-		linewidth: 1,
-		dashed: false,
-		opacity: 0.3
-
-	} );
-
-	buildBrainWireFrame(); 
-
-	// var pointsMat = new Three.PointsMaterial( {color:  0xFF7254 } )
-	// var pointCloud = new Three.Points( brainHighPoly.geometry, pointsMat );
+	// Disabled for some reason ???
+	//buildBrainWireFrame(); 
 
 	// TODO: Add Resolution / particle count limiters
 	particleCount = 122112;
 
-	var particleCloudPositions = new Float32Array( particleCount * 3 );
 	var particleCloudScales = new Float32Array( particleCount );
 
 	for ( let i = 0; i < particleCount; i++ ) {
 
-		particleCloudScales[i] = 1;
-
-	}
-
-	console.log(brainHighPoly.geometry);
-
-	let p = 0;
-	for( let i = 0; i < particleCount * 3; i+=3 ) {
-
-		particleCloudPositions[ p ] = brainHighPoly.geometry.attributes.position.array[ i ];
-		particleCloudPositions[ p + 1 ] = brainHighPoly.geometry.attributes.position.array[ i + 1];
-		particleCloudPositions[ p + 2 ] = brainHighPoly.geometry.attributes.position.array[ i + 2 ];
-
-		p += 3;
+		particleCloudScales[i] = 3;
 
 	}
 
 	var particleGeometry = new Three.BufferGeometry();
-	particleGeometry.setAttribute( 'position', new Three.BufferAttribute( particleCloudPositions, 3 ) );
+
+	particleGeometry.setAttribute( 'position', brainHighPoly.geometry.attributes.position );
+	//particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
 	particleGeometry.setAttribute( 'scale', new Three.BufferAttribute( particleCloudScales, 1 ) );
 
 	var material = new Three.ShaderMaterial( {
@@ -236,20 +210,11 @@ const init = () => {
 
 	scene.add( particles );
 
-	// console.log(pointCloudPositions);
-	// console.log(pointCloudScales);
-
-	// pointCloud.geometry.center();
-	// pointCloud.scale.set( 50,50,50 );
-	// pointCloud.position.set( 0,0,0 );
-	// pointCloud.rotateX( - Math.PI / 2 );
-	// scene.add( pointCloud );
-
 	// Uncomment for Vertex normal display
-	// vnh = new VertexNormalsHelper( pointCloud, 5 );
+	// vnh = new VertexNormalsHelper( particles, 5 );
 	// scene.add( vnh );
 
-	renderer = new Three.WebGLRenderer( { antialias: true } );
+	renderer = new Three.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
@@ -309,16 +274,33 @@ const animate = () => {
 
 	requestAnimationFrame( animate );
 
+	render();
+
+}
+
+const render = () => {
+	
 	camera.position.x += ( mouseX - camera.position.x ) * .01;
 	camera.position.y += ( - mouseY - camera.position.y ) * .05;
 	camera.lookAt( scene.position );
-	camera.updateProjectionMatrix();
 
-	if ( vnh ) vnh.update();
+	var time = Date.now() * 0.005;
 
-	fatLineMaterial.resolution.set( window.innerWidth, window.innerHeight );
+	var positions = particles.geometry.attributes.position.array;
+
+	for ( let i = 0; i < particleCount * 3; i+=3 ) {
+
+		// positions[ i ] += ( Math.sin( ( i + count ) * 0.3 ) * 50 );
+		positions[ i + 2 ] += ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 );
+		// positions[ i + 2 ] += ( Math.sin( ( i + count ) * 0.3 ) * 50 );
+
+	}
+
+	particles.geometry.attributes.position.needsUpdate = true;
 
 	renderer.render( scene, camera );
+
+	count += 0.1;
 
 }
 
