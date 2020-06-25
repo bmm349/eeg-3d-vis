@@ -1,17 +1,22 @@
 'use strict';
 
 const Three = require('three');
-const { OrbitControls } = require('three/examples/jsm/controls/OrbitControls.js');
 const { FBXLoader } = require('three/examples/jsm/loaders/FBXLoader.js');
-const { TrackballControls } = require('three/examples/jsm/controls/TrackballControls.js');
 const { LineMaterial } = require('three/examples/jsm/lines/LineMaterial.js');
 const { Wireframe }  = require('three/examples/jsm/lines/Wireframe.js');
 const { WireframeGeometry2 } = require('three/examples/jsm/lines/WireframeGeometry2.js');
 const { VertexNormalsHelper } = require('three/examples/jsm/helpers/VertexNormalsHelper.js');
+const fovMax = 60;
+const fovMin = 1;
 
 let camera, scene, renderer, brainModel, controls, brainHighPoly;
 
 let fatLineMaterial, wireframe;
+
+let mouseX = 0, mouseY = 0;
+
+let windowHalfX = window.innerWidth / 2;
+let windowHalfY = window.innerHeight / 2;
 
 let vnh;
 
@@ -153,8 +158,8 @@ const init = () => {
 
 	fatLineMaterial = new LineMaterial( { 
 
-		color: 0x403c3b,
-		linewidth: 2,
+		color: 0xffffff,
+		linewidth: 1,
 		dashed: false,
 		opacity: 0.3
 
@@ -186,15 +191,42 @@ const init = () => {
 	document.body.appendChild( renderer.domElement );
 
 	window.addEventListener( 'resize', onWindowResize, false );
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
 
-	controls = new TrackballControls( camera, renderer.domElement );
-
-	controls.rotateSpeed = 1.0;
-	controls.zoomSpeed = 1.2;
-	controls.panSpeed = 0.8;
-	controls.keys = [ 65, 83, 68 ];
+	// TODO: Unify into generic events (might only work on Firefox??)
+	document.addEventListener( 'wheel', onDocumentMouseWheel, false);
 
 	animate();
+
+}
+
+const onDocumentMouseDown = () => {
+
+	document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+}
+
+const onDocumentMouseUp = () => {
+
+	document.removeEventListener('mousemove', onDocumentMouseMove, false);
+}
+
+const onDocumentMouseMove = ( event ) => {
+
+	mouseX = event.clientX - windowHalfX;
+	mouseY = event.clientY - windowHalfY;
+
+}
+
+const onDocumentMouseWheel = ( event ) => {
+
+	// Update the camera fov to zoom in / zoom out
+	camera.fov -= event.deltaY * 0.2;
+	camera.fov = Math.max( Math.min( camera.fov, fovMax ), fovMin );
+
+	// Update camera proj matrix
+	camera.updateProjectionMatrix();
 
 }
 
@@ -203,7 +235,7 @@ const onWindowResize = () => {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 
-	controls.handleResize();
+	// TODO Add update to window size variables
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -213,7 +245,10 @@ const animate = () => {
 
 	requestAnimationFrame( animate );
 
-	controls.update();
+	camera.position.x += ( mouseX - camera.position.x ) * .01;
+	camera.position.y += ( - mouseY - camera.position.y ) * .05;
+	camera.lookAt( scene.position );
+	camera.updateProjectionMatrix();
 
 	if ( vnh ) vnh.update();
 
