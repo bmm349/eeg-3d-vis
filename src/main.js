@@ -158,8 +158,6 @@ const loadBrainModelHighPoly = async () => {
 
 const buildBrainWireFrame = () => {
 
-	
-
 }
 
 const init = () => {
@@ -187,7 +185,7 @@ const init = () => {
 	var particleGeometry = new Three.BufferGeometry();
 
 	particleGeometry.setAttribute( 'position', brainHighPoly.geometry.attributes.position );
-	//particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
+	particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
 	particleGeometry.setAttribute( 'scale', new Three.BufferAttribute( particleCloudScales, 1 ) );
 
 	var material = new Three.ShaderMaterial( {
@@ -212,7 +210,7 @@ const init = () => {
 
 	// Uncomment for Vertex normal display
 	// vnh = new VertexNormalsHelper( particles, 5 );
-	// scene.add( vnh );
+	// scene.add( vnh );s
 
 	renderer = new Three.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -284,15 +282,16 @@ const render = () => {
 	camera.position.y += ( - mouseY - camera.position.y ) * .05;
 	camera.lookAt( scene.position );
 
-	var time = Date.now() * 0.005;
+	var time = Date.now() * 0.0005;
 
 	var positions = particles.geometry.attributes.position.array;
+	var normals = particles.geometry.attributes.normal.array;
 
 	for ( let i = 0; i < particleCount * 3; i+=3 ) {
 
-		// positions[ i ] += ( Math.sin( ( i + count ) * 0.3 ) * 50 );
-		positions[ i + 2 ] += ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 );
-		// positions[ i + 2 ] += ( Math.sin( ( i + count ) * 0.3 ) * 50 );
+		positions[ i ] += (normals[ i ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+		positions[ i + 2 ] += (normals[ i + 2 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+		positions[ i + 1 ] += (normals[ i + 1 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
 
 	}
 
