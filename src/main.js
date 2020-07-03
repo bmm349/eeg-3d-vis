@@ -88,7 +88,7 @@ const loadBrainModel = async () => {
 
 		var modelLoader = new FBXLoader();
 
-		modelLoader.load( '../src/models/brain-uv.fbx',
+		modelLoader.load( '../src/models/brain.fbx',
 
 		function ( object ) {
 
@@ -169,7 +169,27 @@ const init = () => {
 	scene.background = new Three.Color( 0x050505 );
 
 	// Disabled for some reason ???
-	//buildBrainWireFrame(); 
+	//buildBrainWireFrame();
+	
+	var geo = new Three.IcosahedronBufferGeometry( 20, 1 );
+
+	var geometry = new WireframeGeometry2( geo );
+
+	fatLineMaterial = new LineMaterial( {
+
+		color: 0x4080ff,
+		linewidth: 1, // in pixels
+		//resolution:  // to be set by renderer, eventually
+		dashed: false
+
+	} );
+
+	var geometry = new WireframeGeometry2( brainModel.geometry );
+	wireframe = new Wireframe(geometry, fatLineMaterial );
+	wireframe.computeLineDistances();
+	wireframe.scale.set( 50, 50, 50 );
+	wireframe.rotateX( -Math.PI / 2 );
+	scene.add( wireframe );
 
 	// TODO: Add Resolution / particle count limiters
 	particleCount = 122112;
@@ -188,20 +208,20 @@ const init = () => {
 	particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
 	particleGeometry.setAttribute( 'scale', new Three.BufferAttribute( particleCloudScales, 1 ) );
 
-	var material = new Three.ShaderMaterial( {
+	var material = new Three.PointsMaterial( {
 
 		uniforms: {
 			color: { value: new Three.Color( 0xffffff ) },
 		},
 		vertexShader: vertexShader,
-		fragmentShader: fragmentShader
+		fragmentShader: fragmentShader,
+		sizeAttenuation: true
 
 	} );
 
 	particles = new Three.Points( particleGeometry, material );
 
 	particles.geometry.center();
-
 	particles.scale.set( 50,50,50 );
 	particles.position.set( 0,0,0 );
 	particles.rotateX( - Math.PI / 2 );
@@ -272,6 +292,7 @@ const animate = () => {
 
 	requestAnimationFrame( animate );
 
+
 	render();
 
 }
@@ -284,22 +305,30 @@ const render = () => {
 
 	var time = Date.now() * 0.0005;
 
-	var positions = particles.geometry.attributes.position.array;
-	var normals = particles.geometry.attributes.normal.array;
+	// var positions = particles.geometry.attributes.position.array;
+	// var normals = particles.geometry.attributes.normal.array;
 
-	for ( let i = 0; i < particleCount * 3; i+=3 ) {
+	// for ( let i = 0; i < particleCount * 3; i+=3 ) {
 
-		positions[ i ] += (normals[ i ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
-		positions[ i + 2 ] += (normals[ i + 2 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
-		positions[ i + 1 ] += (normals[ i + 1 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+	// 	positions[ i ] += (normals[ i ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+	// 	positions[ i + 2 ] += (normals[ i + 2 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+	// 	positions[ i + 1 ] += (normals[ i + 1 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
 
-	}
+	// }
 
-	particles.geometry.attributes.position.needsUpdate = true;
+	// particles.geometry.attributes.position.needsUpdate = true;
+
+	fatLineMaterial.resolution.set( window.innerWidth, window.innerHeight );
 
 	renderer.render( scene, camera );
 
 	count += 0.1;
+
+}
+
+const createRandomColor = () => {
+
+	return Math.floor( Math.random() * ( 1 << 24 ) );
 
 }
 
