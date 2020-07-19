@@ -195,6 +195,23 @@ const init = () => {
 	wireframe.rotateX( -Math.PI / 2 );
 	scene.add( wireframe );
 
+	
+	uniforms = {
+		pointTexture: { value: new Three.TextureLoader().load( "../src/textures/point.png" ) }
+	};
+
+	var material = new Three.ShaderMaterial( {
+		uniforms: uniforms,
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader,
+		//vertexColors: true
+		blending: Three.AdditiveBlending,
+		depthTest: false,
+		transparent: true,
+		vertexColors: true
+
+	} );
+
 	// TODO: Add Resolution / particle count limiters
 	particleCount = 122112;
 
@@ -224,21 +241,6 @@ const init = () => {
 	particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
 	particleGeometry.setAttribute( 'scale', new Three.Float32BufferAttribute( scales, 1 ).setUsage( Three.DynamicDrawUsage ) );
 	particleGeometry.setAttribute( 'color', new Three.Float32BufferAttribute( colors, 3 ) );
-
-
-	uniforms = {
-		pointTexture: { value: new Three.TextureLoader().load( "../src/textures/point.png" ) }
-	};
-
-	var material = new Three.ShaderMaterial( {
-
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader,
-		blending: Three.AdditiveBlending,
-		depthTest: false,
-		vertexColors: true
-
-	} );
 
 	particles = new Three.Points( particleGeometry, material );
 
