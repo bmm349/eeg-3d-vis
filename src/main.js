@@ -6,6 +6,8 @@ const { LineMaterial } = require('three/examples/jsm/lines/LineMaterial.js');
 const { Wireframe }  = require('three/examples/jsm/lines/Wireframe.js');
 const { WireframeGeometry2 } = require('three/examples/jsm/lines/WireframeGeometry2.js');
 const { VertexNormalsHelper } = require('three/examples/jsm/helpers/VertexNormalsHelper.js');
+const { Color } = require('three');
+const zmq = require('zeromq.node');
 const fovMax = 60;
 const fovMin = 1;
 
@@ -20,6 +22,8 @@ let mouseX = 0, mouseY = 0;
 let particles;
 
 let count = 0;
+
+let uniforms;
 
 let particleCount = 0;
 
@@ -38,7 +42,7 @@ const loadResources = async () => {
 
 	Promise.all( [ loadBrainModel(), loadShaders(), loadBrainModelHighPoly() ] ).then( ( res ) => {
 
-		console.log("all promises finished");
+		console.log('all promises finished');
 		init();
 
 	});
@@ -195,27 +199,44 @@ const init = () => {
 	particleCount = 122112;
 
 	var particleCloudScales = new Float32Array( particleCount );
+	var particleCloudColors = new Float32Array( particleCount );
+
+	let colors = [];
+	let scales = [];
+
+	var color = new Three.Color();
 
 	for ( let i = 0; i < particleCount; i++ ) {
 
-		particleCloudScales[i] = 3;
+		scales.push( 1 );
+
+		color.setHSL( i / particles, 1.0, 0.5 );
+
+		colors.push( color.r, color.g, color.b );
 
 	}
+
+	console.log(particleCloudColors);
 
 	var particleGeometry = new Three.BufferGeometry();
 
 	particleGeometry.setAttribute( 'position', brainHighPoly.geometry.attributes.position );
 	particleGeometry.setAttribute( 'normal', brainHighPoly.geometry.attributes.normal );
-	particleGeometry.setAttribute( 'scale', new Three.BufferAttribute( particleCloudScales, 1 ) );
+	particleGeometry.setAttribute( 'scale', new Three.Float32BufferAttribute( scales, 1 ).setUsage( Three.DynamicDrawUsage ) );
+	particleGeometry.setAttribute( 'color', new Three.Float32BufferAttribute( colors, 3 ) );
 
-	var material = new Three.PointsMaterial( {
 
-		uniforms: {
-			color: { value: new Three.Color( 0xffffff ) },
-		},
+	uniforms = {
+		pointTexture: { value: new Three.TextureLoader().load( "../src/textures/point.png" ) }
+	};
+
+	var material = new Three.ShaderMaterial( {
+
 		vertexShader: vertexShader,
 		fragmentShader: fragmentShader,
-		sizeAttenuation: true
+		blending: Three.AdditiveBlending,
+		depthTest: false,
+		vertexColors: true
 
 	} );
 
