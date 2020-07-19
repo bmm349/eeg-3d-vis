@@ -328,18 +328,18 @@ const render = () => {
 
 	var time = Date.now() * 0.0005;
 
-	// var positions = particles.geometry.attributes.position.array;
-	// var normals = particles.geometry.attributes.normal.array;
+	var positions = particles.geometry.attributes.position.array;
+	var normals = particles.geometry.attributes.normal.array;
 
-	// for ( let i = 0; i < particleCount * 3; i+=3 ) {
+	for ( let i = 0; i < particleCount * 3; i+=3 ) {
 
-	// 	positions[ i ] += (normals[ i ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
-	// 	positions[ i + 2 ] += (normals[ i + 2 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
-	// 	positions[ i + 1 ] += (normals[ i + 1 ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.005 ));
+		positions[ i ] += 	  (normals[ i ] * ( Math.sin( ( 0.1 * (i / 3) + time ) * 0.6 ) * 0.0005 ));
+		positions[ i + 2 ] += (normals[ i + 2 ] * ( Math.sin( ( 0.1 * ( (i + 2) / 3) + time ) * 0.6 ) * 0.0005 ));
+		positions[ i + 1 ] += (normals[ i + 1 ] * ( Math.sin( ( 0.1 * ( (i + 1) / 3) + time ) * 0.6 ) * 0.0005 ));
 
-	// }
+	}
 
-	// particles.geometry.attributes.position.needsUpdate = true;
+	particles.geometry.attributes.position.needsUpdate = true;
 
 	fatLineMaterial.resolution.set( window.innerWidth, window.innerHeight );
 
