@@ -13,7 +13,7 @@
   "dependencies": {
     "@rollup/plugin-commonjs": "^13.0.0",
     "protobufjs": "^6.9.0",
-    "three": "^0.115.0",
+    "three": "^0.125.0",
     "zeromq": "^5.2.0"
   },
   "devDependencies": {
